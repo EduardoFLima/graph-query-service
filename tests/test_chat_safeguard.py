@@ -12,7 +12,7 @@ def enable_safeguard():
         yield
     get_settings.cache_clear()
 
-class TestChatPaths:
+class TestChatSafeguard:
 
     @pytest.fixture()
     def client(self):

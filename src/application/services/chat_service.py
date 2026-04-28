@@ -41,19 +41,13 @@ class ChatService(ChatUseCase):
             for message in result["messages"]
         ]
 
-        path = result["path"].value if result.get("path") else None
-        preferred_path = result["preferred_path"].value if result.get("preferred_path") else None
         blocked = result["safeguard"].blocked if result.get("safeguard") else None
 
-        print("✅ The resulting path was:", path)
-        print("✅ The resulting preferred_path was:", preferred_path)
         print("✅ The safeguard status was:", "blocked" if blocked else "not blocked")
 
         return {
             "messages": formatted_messages,
             "answer": formatted_messages[-1],
             "blocked": blocked,
-            "path": path,
-            "preferred_path": preferred_path,
             "thread_id": thread_id,
         }

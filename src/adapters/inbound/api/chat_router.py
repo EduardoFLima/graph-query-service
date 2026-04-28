@@ -28,6 +28,4 @@ def receive_question(request: ChatRequest,
     return ChatResponse(
         messages=chat_response.get("messages") if show_history else None,
         answer=chat_response.get("answer"),
-        path=str(chat_response.get("path")),
-        preferred_path=str(chat_response.get("preferred_path"))
     )
