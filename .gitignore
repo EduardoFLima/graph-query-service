@@ -1,0 +1,29 @@
+# Byte-compiled
+__pycache__/
+
+# Virtual environments
+.venv/
+
+# Test / coverage artifacts
+.pytest_cache/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!tests/.env.test
+
+# VS Code
+.vscode
+
+# PyCharm
+.idea
+
+# OS files
+.DS_Store
+
+# local persistence
+dbdata
+
+# langchain dev environment
+.langgraph_api
