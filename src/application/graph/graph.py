@@ -10,10 +10,6 @@ from src.application.ports.outbound.memory_port import MemoryPort
 from src.application.ports.outbound.model_client_port import ModelClientPort
 
 
-def resolve_initial_checks(state):
-    return state
-
-
 def blocked(_):
     return {"messages": [AIMessage("Apologies but a security risk was detected in your last prompt.")]}
 
@@ -31,19 +27,15 @@ def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort
 
     agent_builder.add_node("extract_prompt", extract_prompt)
     agent_builder.add_node("safeguard_check", safeguard_check(model_client))
-    agent_builder.add_node("resolve_initial_checks", resolve_initial_checks)
     agent_builder.add_node("plan_query", plan_query(model_client))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
     # initial checks
     agent_builder.add_edge(START, "extract_prompt")
-    agent_builder.add_edge(START, "safeguard_check")
-
-    agent_builder.add_edge("extract_prompt", "resolve_initial_checks")
-    agent_builder.add_edge("safeguard_check", "resolve_initial_checks")
+    agent_builder.add_edge("extract_prompt", "safeguard_check")
     agent_builder.add_conditional_edges(
-        "resolve_initial_checks",
+        "safeguard_check",
         initial_checks_condition,
         {"safe": "plan_query", "unsafe": "blocked"},
     )
