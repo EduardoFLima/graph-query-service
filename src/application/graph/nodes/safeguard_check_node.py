@@ -1,4 +1,3 @@
-from src.application.graph.message_extractor import extract_prompt_from
 from src.application.graph.state import Safeguard
 from src.application.ports.outbound.model_client_port import ModelClientPort
 from src.application.prompts.guardrails_prompt import (
@@ -10,7 +9,7 @@ from src.application.prompts.guardrails_prompt import (
 def safeguard_check(model_client: ModelClientPort):
     def safeguard_check_node(state: dict):
         try:
-            prompt = extract_prompt_from(state)
+            prompt = state["user_prompt"]
 
             safeguard_prompt = get_safeguard_prompt(prompt)
 
