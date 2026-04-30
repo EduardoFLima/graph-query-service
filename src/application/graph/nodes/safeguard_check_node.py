@@ -1,9 +1,13 @@
+import logging
+
 from src.application.graph.state import Safeguard
 from src.application.ports.outbound.model_client_port import ModelClientPort
 from src.application.prompts.guardrails_prompt import (
     SafeguardSchema,
     get_safeguard_prompt,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def safeguard_check(model_client: ModelClientPort):
@@ -26,8 +30,8 @@ def safeguard_check(model_client: ModelClientPort):
                 )
             }
         except Exception as e:
-            print("\n❌ Error:", e)
-            
+            logger.error("\n❌ Error: %s", e)
+
             return {
                 "safeguard": Safeguard(
                     blocked=True,

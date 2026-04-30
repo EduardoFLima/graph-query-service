@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import TypeVar
 
 from langchain.agents import create_agent
@@ -9,6 +10,8 @@ from src.application.ports.outbound.model_client_port import ModelClientPort
 from src.config import Settings
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAPIClient(ModelClientPort):
@@ -45,7 +48,7 @@ class OpenAPIClient(ModelClientPort):
             model=self._client, tools=[], response_format=response_format
         )
 
-        print("\n⌛...calling the agent...")
+        logger.info("\n⌛...calling the agent...")
 
         try:
             data = agent.invoke(
@@ -55,8 +58,9 @@ class OpenAPIClient(ModelClientPort):
             last_ai_message = data["messages"][-2]
 
             if last_ai_message is not None and isinstance(last_ai_message, AIMessage):
-                print(
-                    f"\nℹ️ Got a response. The model used was {last_ai_message.response_metadata["model_name"]}",
+                logger.info(
+                    "\nℹ️ Got a response. The model used was %s",
+                    last_ai_message.response_metadata["model_name"],
                 )
 
             structured_response = data.get("structured_response")
@@ -66,7 +70,7 @@ class OpenAPIClient(ModelClientPort):
 
         except Exception as e:
             answer = "An error occurred when calling the llm provider"
-            print(f"{answer}:", e)
+            logger.error("%s: %s", answer, e)
 
         return None
 
@@ -74,7 +78,7 @@ class OpenAPIClient(ModelClientPort):
         if self._is_safeguard_disabled():
             return self._generate_disabled_response()
 
-        print("\n🛡️...calling the safeguard agent...")
+        logger.info("\n🛡️...calling the safeguard agent...")
 
         data = self._safeguard_client.invoke(
             [
@@ -88,7 +92,7 @@ class OpenAPIClient(ModelClientPort):
 
         model = data.response_metadata["model_name"] if data.response_metadata else None
 
-        print(f"\nℹ️ Got a response. The model used was {model}.")
+        logger.info("\nℹ️ Got a response. The model used was %s.", model)
 
         return json.loads(data.text)
 
@@ -97,6 +101,6 @@ class OpenAPIClient(ModelClientPort):
 
     def _generate_disabled_response(self):
         disabled_message = "Safeguard check is disabled"
-        print(f"\n⏭️...{disabled_message}...")
+        logger.info("\n⏭️...%s...", disabled_message)
 
         return {"security_status": "SAFE", "analysis": disabled_message}

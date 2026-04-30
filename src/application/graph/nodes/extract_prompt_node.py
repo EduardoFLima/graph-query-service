@@ -1,11 +1,15 @@
+import logging
+
 from langchain.messages import HumanMessage
+
+logger = logging.getLogger(__name__)
 
 
 def extract_prompt(state):
     user_prompt = extract_prompt_from(state)
     conversation_history = extract_conversation_history(state["messages"])
 
-    print("🔍 Prompt extracted...")
+    logger.info("🔍 Prompt extracted...")
 
     return {
         "user_prompt": user_prompt,
