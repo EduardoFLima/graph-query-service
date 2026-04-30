@@ -6,7 +6,7 @@ from src.domain.models.product import Product
 
 class Purchase:
     id: uuid
-    products: list[Product]
+    products: list[tuple[Product, int]] # product, quantity
     customer_name: str
     date: datetime
     total_amount: float
