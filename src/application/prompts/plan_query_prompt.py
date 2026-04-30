@@ -1,40 +1,56 @@
 import json
+from enum import Enum
 from functools import lru_cache
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+
+class Complexity(Enum):
+    SIMPLE = "SIMPLE"
+    COMPLEX = "COMPLEX"
+
 
 class PlanQuerySchema(BaseModel):
-    plan: str = Field(description="the query plan")
+    complexity: Complexity
+    requiresDecomposition: bool
+    subQuestions: list[str]
+    reasoning: str
+
 
 @lru_cache
 def get_system_prompt() -> str:
     system_prompt = {
-        "role": "Query planner assistant",
-        "task": "Identify user intent and break it down in small steps, create a plan for extracting required data to fulfill the user request",
-        "rules": {
-        },
-        "extraction_instructions": {
-        },
+        "role": "Query Complexity Analyzer - Determine if questions need multi-step decomposition",
+        "rules": [
+            "Generate sub-questions in the SAME language as the input question (ignore data language)",
+            "Simple: Single entity, direct retrieval, no group comparisons",
+            "Complex: Comparing groups, multiple dependent calculations, relationship analysis",
+            "Decompose into max 3 sub-questions, each independently answerable, logically ordered",
+        ],
         "examples": [
             {
-                "input": "I want...",
-                "output": {
-                },
+                "question": "List all available products",
+                "complexity": "simple",
+                "requiresDecomposition": False,
+                "subQuestions": [],
+                "reasoning": "Direct retrieval, no comparisons"
             },
+            {
+                # Compare revenue between high vs low completion courses'
+                "question": "Compare average revenue between high quantity vs low quantity purchases ",
+                "complexity": "complex",
+                "requiresDecomposition": True,
+                "subQuestions": ["Average revenue per purchase?",
+                                 "Revenue for purchase quantity >= than 20 ?",
+                                 "Revenue for purchase quantity < than 20 ?", ],
+                "reasoning": "Multiple aggregations + group comparison"},
         ],
     }
+
     return json.dumps(system_prompt)
 
 
-def wrap_user_prompt(prompt: str) -> str:
-    user_prompt = {
-        "request": prompt,
-        "instructions": [
-            "Carefully analyze the question to determine the user intent",
-            "Extract all relevant details only from the user prompt",
-            "Return only the fields that are present in the request or coming from user context",
-            "Never infer or fabricate values"
-        ],
-    }
-
-    return json.dumps(user_prompt)
+def wrap_user_prompt(
+        prompt: str,
+) -> str:
+    return prompt

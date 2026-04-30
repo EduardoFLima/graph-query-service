@@ -28,4 +28,6 @@ def receive_question(request: ChatRequest,
     return ChatResponse(
         messages=chat_response.get("messages") if show_history else None,
         answer=chat_response.get("answer"),
+        complexity=chat_response.get("complexity"),
+        reasoning=chat_response.get("reasoning"),
     )

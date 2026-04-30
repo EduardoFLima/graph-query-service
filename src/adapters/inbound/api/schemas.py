@@ -8,3 +8,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     messages: list[str] | None = None
+    complexity: str | None = None
+    reasoning: str | None = None
+    error: str | None = None
+

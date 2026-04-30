@@ -45,12 +45,21 @@ class ChatService(ChatUseCase):
         ]
 
         blocked = result["safeguard"].blocked if result.get("safeguard") else None
+        plan_query = result["plan_query"] if result.get("plan_query") else None
+        if plan_query:
+            complexity = plan_query.complexity
+            reasoning = plan_query.reasoning
 
         logger.info("✅ The safeguard status was: %s", "blocked" if blocked else "not blocked")
+        logger.info("✅ The Complexity: %s", complexity)
+        logger.info("✅ The Reasoning: %s", reasoning)
 
         return {
             "messages": formatted_messages,
             "answer": formatted_messages[-1],
             "blocked": blocked,
             "thread_id": thread_id,
+            "complexity": complexity,
+            "reasoning": reasoning,
+            "error": result["error"] if result.get("error") else None,
         }
