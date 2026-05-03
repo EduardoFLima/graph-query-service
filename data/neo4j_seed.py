@@ -81,12 +81,12 @@ def build_mock_purchases(
                 }
             )
 
-        purchase_date = now - timedelta(days=rng.randint(0, 365), minutes=rng.randint(0, 1440))
+        purchase_datetime = now - timedelta(days=rng.randint(0, 365), minutes=rng.randint(0, 1440))
         purchases.append(
             {
                 "id": purchase_id,
                 "customer_name": rng.choice(CUSTOMER_NAMES),
-                "date": purchase_date.isoformat(),
+                "datetime": purchase_datetime.isoformat(),
                 "total_amount": round(total_amount, 2),
             }
         )
@@ -125,7 +125,7 @@ def seed_neo4j(
             UNWIND $purchases AS purchase
             MERGE (p:Purchase {id: purchase.id})
             SET p.customer_name = purchase.customer_name,
-                p.date = datetime(purchase.date),
+                p.datetime = datetime(purchase.datetime),
                 p.total_amount = purchase.total_amount
             """,
             purchases=purchases,

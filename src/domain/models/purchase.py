@@ -8,5 +8,5 @@ class Purchase:
     id: uuid
     products: list[tuple[Product, int]] # product, quantity
     customer_name: str
-    date: datetime
+    datetime: datetime
     total_amount: float
