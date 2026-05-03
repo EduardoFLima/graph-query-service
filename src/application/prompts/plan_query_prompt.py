@@ -12,8 +12,8 @@ class Complexity(Enum):
 
 class PlanQuerySchema(BaseModel):
     complexity: Complexity
-    requiresDecomposition: bool
-    subQuestions: list[str]
+    requires_decomposition: bool
+    sub_questions: list[str]
     reasoning: str
 
 
@@ -31,16 +31,16 @@ def get_system_prompt() -> str:
             {
                 "question": "List all available products",
                 "complexity": "simple",
-                "requiresDecomposition": False,
-                "subQuestions": [],
+                "requires_decomposition": False,
+                "sub_questions": [],
                 "reasoning": "Direct retrieval, no comparisons"
             },
             {
                 # Compare revenue between high vs low completion courses'
                 "question": "Compare average revenue between high quantity vs low quantity purchases ",
                 "complexity": "complex",
-                "requiresDecomposition": True,
-                "subQuestions": ["Average revenue per purchase?",
+                "requires_decomposition": True,
+                "sub_questions": ["Average revenue per purchase?",
                                  "Revenue for purchase quantity >= than 20 ?",
                                  "Revenue for purchase quantity < than 20 ?", ],
                 "reasoning": "Multiple aggregations + group comparison"},
