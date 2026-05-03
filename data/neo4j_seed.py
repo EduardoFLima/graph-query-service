@@ -125,7 +125,7 @@ def seed_neo4j(
             UNWIND $purchases AS purchase
             MERGE (p:Purchase {id: purchase.id})
             SET p.customer_name = purchase.customer_name,
-                p.date = purchase.date,
+                p.date = datetime(purchase.date),
                 p.total_amount = purchase.total_amount
             """,
             purchases=purchases,
