@@ -13,6 +13,10 @@ class PostgresSettings(BaseModel):
     def db_uri(self) -> str:
         return f"postgresql://postgres:{self.postgres_password}@localhost:5432/{self.postgres_db}"
 
+class Neo4jSettings(BaseModel):
+    neo4j_uri: str = ""
+    neo4j_user: str = ""
+    neo4j_password: str = ""
 
 class SafeguardSettings(BaseModel):
 
@@ -36,6 +40,7 @@ class Settings(BaseSettings):
     temperature: float = 0.2
 
     memory: PostgresSettings = PostgresSettings()
+    graph_db: Neo4jSettings = Neo4jSettings()
     safeguard: SafeguardSettings = SafeguardSettings()
 
     # loading .env
