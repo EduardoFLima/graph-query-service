@@ -23,7 +23,7 @@ __pycache__/
 .DS_Store
 
 # local persistence
-dbdata
+.storage
 
 # langchain dev environment
 .langgraph_api

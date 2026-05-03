@@ -17,6 +17,7 @@ This repository is designed to be copied and adapted as a starting point for oth
 - [Prerequisites](#prerequisites)
 - [Run the project (Uvicorn)](#run-the-project-uvicorn)
 - [Run tests (Pytest)](#run-tests-pytest)
+- [Seed Neo4j with mock data](#seed-neo4j-with-mock-data)
 - [Hexagonal architecture (rough overview)](#hexagonal-architecture-rough-overview)
   - [Benefits](#benefits)
 - [Graph structure (`src/application/graph/graph.py`)](#graph-structure-srcapplicationgraphgraphpy)
@@ -86,6 +87,27 @@ or
 ```bash
 # verbosely
 pytest -vs
+```
+
+## Seed Neo4j with mock data
+
+This project includes a script to populate local Neo4j with mock graph data:
+
+- 15 `Product` nodes
+- 1000 `Purchase` nodes
+- `(:Purchase)-[:CONTAINS {quantity, unit_price, line_total}]->(:Product)` relationships
+
+Run it after starting Docker Compose (Neo4j is exposed at `bolt://localhost:7687`):
+
+```bash
+python -m data.neo4j_seed
+```
+
+Optional flags:
+
+```bash
+python -m data.neo4j_seed --products 15 --purchases 1000 --seed 42
+python -m data.neo4j_seed --no-clear
 ```
 
 ## Hexagonal architecture (rough overview)

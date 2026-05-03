@@ -10,5 +10,6 @@ langgraph==1.1.6
 langgraph-cli[inmem] # for local dev
 langgraph-checkpoint-postgres==3.0.5
 psycopg[binary] # needed by langgraph-checkpoint-postgre
+neo4j==5.28.1
 
 pytest==9.0.3
