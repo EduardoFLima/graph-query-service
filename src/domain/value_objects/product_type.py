@@ -1,7 +1,7 @@
-import enum
+from enum import Enum
 
 
-class ProductType(enum):
+class ProductType(Enum):
     DAIRY = ("DAIRY",)
     FRUITS = ("FRUITS",)
     VEGETABLES = ("VEGETABLES",)
