@@ -25,7 +25,6 @@ def cypher_generator(model_client: ModelClientPort):
 
             if structured_response and structured_response.cypher:
                 return {
-                    "current_step": current_step + 1 if current_step is not None else None,
                     "cyphers": cyphers + [structured_response.cypher],
                 }
 

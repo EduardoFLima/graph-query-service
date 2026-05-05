@@ -1,6 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
+from src.application.graph.nodes.cypher_executer_node import cypher_executor
 from src.application.graph.nodes.cypher_generator_node import cypher_generator
 from src.application.graph.nodes.init_state_node import init_state
 from src.application.graph.nodes.plan_query_node import plan_query
@@ -9,6 +10,7 @@ from src.application.graph.nodes.summarize_node import summarize
 from src.application.graph.state import State
 from src.application.ports.outbound.memory_port import MemoryPort
 from src.application.ports.outbound.model_client_port import ModelClientPort
+from src.application.ports.outbound.purchase_repository import PurchaseRepository
 
 
 def blocked(_):
@@ -39,13 +41,16 @@ def iteration_condition(state: dict):
     return "iterate"
 
 
-def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort):
+def get_graph_definition(model_client: ModelClientPort,
+                         purchase_repository: PurchaseRepository,
+                         memory_saver: MemoryPort):
     agent_builder = StateGraph(State)
 
     agent_builder.add_node("init_state", init_state)
     agent_builder.add_node("safeguard_check", safeguard_check(model_client))
     agent_builder.add_node("plan_query", plan_query(model_client))
     agent_builder.add_node("cypher_generator", cypher_generator(model_client))
+    agent_builder.add_node("cypher_executor", cypher_executor(purchase_repository))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
@@ -60,14 +65,17 @@ def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort
 
     # after initial checks
     agent_builder.add_edge("plan_query", "cypher_generator")
+
+    agent_builder.add_edge("cypher_generator", "cypher_executor")
     agent_builder.add_conditional_edges(
-        "cypher_generator",
+        "cypher_executor",
         iteration_condition,
         {
             "iterate": "cypher_generator",
             "done": "summarize"
         },
     )
+
     agent_builder.add_edge("blocked", "summarize")
     agent_builder.add_edge("summarize", END)
 

@@ -4,11 +4,13 @@ from fastapi import Depends
 from langgraph.graph.state import CompiledStateGraph
 
 from src.adapters.outbound.model_clients.open_api_client import OpenAPIClient
+from src.adapters.outbound.persistence.neo4j_purchase_repository import Neo4jPurchaseRepository
 from src.adapters.outbound.persistence.postgres_memory import PostgresMemory
 from src.application.graph.factory import build_graph
 from src.application.ports.inbound.chat_use_case import ChatUseCase
 from src.application.ports.outbound.memory_port import MemoryPort
 from src.application.ports.outbound.model_client_port import ModelClientPort
+from src.application.ports.outbound.purchase_repository import PurchaseRepository
 from src.application.services.chat_service import ChatService
 from src.config import get_settings
 
@@ -21,11 +23,18 @@ def get_postgres_memory(settings=Depends(get_settings)) -> MemoryPort:
     return PostgresMemory(settings.memory.db_uri)
 
 
+def get_purchase_repository(settings=Depends(get_settings)) -> PurchaseRepository:
+    return Neo4jPurchaseRepository(settings.graph_db.neo4j_uri,
+                                   settings.graph_db.neo4j_user,
+                                   settings.graph_db.neo4j_password)
+
+
 def get_graph(
         model_client=Depends(get_model_client),
+        purchase_repository=Depends(get_purchase_repository),
         memory_saver=Depends(get_postgres_memory)
 ) -> CompiledStateGraph:
-    return build_graph(model_client, memory_saver)
+    return build_graph(model_client, purchase_repository, memory_saver)
 
 
 def get_chat_service(graph=Depends(get_graph)) -> ChatUseCase:

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from langgraph.graph import MessagesState
 
@@ -19,5 +20,7 @@ class State(MessagesState):
 
     plan_query: PlanQuerySchema | None = None
     cyphers: list[str] | None = None
+    results: list[Any] | None = None
+
     current_step: int = 0
     total_steps: int = 1
