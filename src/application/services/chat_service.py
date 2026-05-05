@@ -44,11 +44,16 @@ class ChatService(ChatUseCase):
             for message in result["messages"]
         ]
 
+        error = result["error"] if "error" in result else None
         blocked = result["safeguard"].blocked if "safeguard" in result else None
         plan_query = result["plan_query"] if "plan_query" in result else None
         complexity = plan_query.complexity if plan_query else None
         reasoning = plan_query.reasoning if plan_query else None
         total_steps = result["total_steps"] if "total_steps" in result else None
+
+        if error:
+            logger.error("❌‍️ Error ! %s", error)
+
 
         logger.info("👮‍♀️ The safeguard status was: %s", "blocked" if blocked else "not blocked")
         logger.info("🧮 The Complexity: %s", complexity)
@@ -63,5 +68,5 @@ class ChatService(ChatUseCase):
             "complexity": complexity,
             "reasoning": reasoning,
             "total_steps": total_steps,
-            "error": result["error"] if result.get("error") else None,
+            "error": error
         }
