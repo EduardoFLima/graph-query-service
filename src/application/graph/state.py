@@ -16,4 +16,8 @@ class State(MessagesState):
     user_prompt: str
     conversation_history: str
     safeguard: Safeguard
+
     plan_query: PlanQuerySchema | None = None
+    cyphers: list[str] | None = None
+    current_step: int = 0
+    total_steps: int = 1

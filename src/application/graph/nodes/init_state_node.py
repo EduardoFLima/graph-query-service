@@ -5,15 +5,17 @@ from langchain.messages import HumanMessage
 logger = logging.getLogger(__name__)
 
 
-def extract_prompt(state):
+def init_state(state):
     user_prompt = extract_prompt_from(state)
     conversation_history = extract_conversation_history(state["messages"])
 
-    logger.info("🔍 Prompt extracted...")
+    logger.info("🔍 Initializing state...  Prompt extracted... setting steps info...")
 
     return {
         "user_prompt": user_prompt,
         "conversation_history": conversation_history,
+        "current_step": 0,
+        "total_steps": 1,
         }
 
 

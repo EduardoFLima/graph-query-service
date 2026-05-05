@@ -1,7 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
-from src.application.graph.nodes.extract_prompt_node import extract_prompt
+from src.application.graph.nodes.init_state_node import init_state
 from src.application.graph.nodes.plan_query_node import plan_query
 from src.application.graph.nodes.safeguard_check_node import safeguard_check
 from src.application.graph.nodes.summarize_node import summarize
@@ -25,15 +25,15 @@ def initial_checks_condition(state: dict):
 def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort):
     agent_builder = StateGraph(State)
 
-    agent_builder.add_node("extract_prompt", extract_prompt)
+    agent_builder.add_node("init_state", init_state)
     agent_builder.add_node("safeguard_check", safeguard_check(model_client))
     agent_builder.add_node("plan_query", plan_query(model_client))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
     # initial checks
-    agent_builder.add_edge(START, "extract_prompt")
-    agent_builder.add_edge("extract_prompt", "safeguard_check")
+    agent_builder.add_edge(START, "init_state")
+    agent_builder.add_edge("init_state", "safeguard_check")
     agent_builder.add_conditional_edges(
         "safeguard_check",
         initial_checks_condition,
