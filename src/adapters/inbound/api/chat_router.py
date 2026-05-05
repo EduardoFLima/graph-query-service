@@ -30,4 +30,5 @@ def receive_question(request: ChatRequest,
         answer=chat_response.get("answer"),
         complexity=chat_response.get("complexity"),
         reasoning=chat_response.get("reasoning"),
+        total_steps=chat_response.get("total_steps"),
     )

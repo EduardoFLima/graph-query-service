@@ -10,5 +10,6 @@ class ChatResponse(BaseModel):
     messages: list[str] | None = None
     complexity: str | None = None
     reasoning: str | None = None
+    total_steps: int | None = None
     error: str | None = None
 

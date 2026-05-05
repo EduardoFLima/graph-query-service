@@ -1,6 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
+from src.application.graph.nodes.cypher_generator_node import cypher_generator
 from src.application.graph.nodes.init_state_node import init_state
 from src.application.graph.nodes.plan_query_node import plan_query
 from src.application.graph.nodes.safeguard_check_node import safeguard_check
@@ -28,6 +29,7 @@ def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort
     agent_builder.add_node("init_state", init_state)
     agent_builder.add_node("safeguard_check", safeguard_check(model_client))
     agent_builder.add_node("plan_query", plan_query(model_client))
+    agent_builder.add_node("cypher_generator", cypher_generator(model_client))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
@@ -41,7 +43,8 @@ def get_graph_definition(model_client: ModelClientPort, memory_saver: MemoryPort
     )
 
     # after initial checks
-    agent_builder.add_edge("plan_query", "summarize")
+    agent_builder.add_edge("plan_query", "cypher_generator")
+    agent_builder.add_edge("cypher_generator", "summarize")
     agent_builder.add_edge("blocked", "summarize")
     agent_builder.add_edge("summarize", END)
 

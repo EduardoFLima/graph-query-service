@@ -44,14 +44,16 @@ class ChatService(ChatUseCase):
             for message in result["messages"]
         ]
 
-        blocked = result["safeguard"].blocked if result.get("safeguard") else None
-        plan_query = result["plan_query"] if result.get("plan_query") else None
+        blocked = result["safeguard"].blocked if "safeguard" in result else None
+        plan_query = result["plan_query"] if "plan_query" in result else None
         complexity = plan_query.complexity if plan_query else None
         reasoning = plan_query.reasoning if plan_query else None
+        total_steps = result["total_steps"] if "total_steps" in result else None
 
-        logger.info("✅ The safeguard status was: %s", "blocked" if blocked else "not blocked")
-        logger.info("✅ The Complexity: %s", complexity)
-        logger.info("✅ The Reasoning: %s", reasoning)
+        logger.info("👮‍♀️ The safeguard status was: %s", "blocked" if blocked else "not blocked")
+        logger.info("🧮 The Complexity: %s", complexity)
+        logger.info("🧠 The Reasoning: %s", reasoning)
+        logger.info("👟 The total_steps: %s", total_steps)
 
         return {
             "messages": formatted_messages,
@@ -60,5 +62,6 @@ class ChatService(ChatUseCase):
             "thread_id": thread_id,
             "complexity": complexity,
             "reasoning": reasoning,
+            "total_steps": total_steps,
             "error": result["error"] if result.get("error") else None,
         }

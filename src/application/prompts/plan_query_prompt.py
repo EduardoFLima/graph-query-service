@@ -26,6 +26,8 @@ def get_system_prompt() -> str:
             "Simple: Single entity, direct retrieval, no group comparisons",
             "Complex: Comparing groups, multiple dependent calculations, relationship analysis",
             "Decompose into max 3 sub-questions, each independently answerable, logically ordered",
+            "if there are subquestions, requires_decomposition must be true",
+            "if there are no subquestions and the question can be solved directly, requires_decomposition must be false",
         ],
         "examples": [
             {
