@@ -16,6 +16,7 @@ class Safeguard:
 class State(MessagesState):
     user_prompt: str
     conversation_history: str
+    error: str | None = None
     safeguard: Safeguard
 
     plan_query: PlanQuerySchema | None = None
