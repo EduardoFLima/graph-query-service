@@ -16,10 +16,14 @@ def cypher_executor(purchase_repository: PurchaseRepository):
 
             target_cypher = extract_target_cypher(state)
 
+            logger.info("🧪 ...validating cypher: %s", target_cypher.replace("\n", " "))
+
             if not purchase_repository.validate_cypher(target_cypher):
                 return {
                     "error": "The generated cypher is not valid"
                 }
+
+            logger.info("📥 Cypher valid! Fetching results...")
 
             target_cypher_result = purchase_repository.execute_cypher(target_cypher)
 
