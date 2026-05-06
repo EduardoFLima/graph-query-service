@@ -101,6 +101,6 @@ class OpenAPIClient(ModelClientPort):
 
     def _generate_disabled_response(self):
         disabled_message = "Safeguard check is disabled"
-        logger.info("\n⏭️...%s...", disabled_message)
+        logger.info("⏭️...%s...", disabled_message)
 
         return {"security_status": "SAFE", "analysis": disabled_message}
