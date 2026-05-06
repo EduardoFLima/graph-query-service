@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Any
 
 from langchain.messages import HumanMessage
 
@@ -51,14 +52,7 @@ class ChatService(ChatUseCase):
         reasoning = plan_query.reasoning if plan_query else None
         total_steps = result["total_steps"] if "total_steps" in result else None
 
-        if error:
-            logger.error("❌‍️ Error ! %s", error)
-
-
-        logger.info("👮‍♀️ The safeguard status was: %s", "blocked" if blocked else "not blocked")
-        logger.info("🧮 The Complexity: %s", complexity)
-        logger.info("🧠 The Reasoning: %s", reasoning)
-        logger.info("👟 The total_steps: %s", total_steps)
+        self.log_details(blocked, complexity, error, reasoning, total_steps)
 
         return {
             "messages": formatted_messages,
@@ -70,3 +64,14 @@ class ChatService(ChatUseCase):
             "total_steps": total_steps,
             "error": error
         }
+
+    def log_details(self, blocked: bool | None, complexity: Any | None, error: str | None, reasoning: str | None,
+                    total_steps: int | None):
+        logger.info("\n ==== got the result from graph ====\n")
+
+        if error:
+            logger.error("❌‍️ Error ! %s", error)
+        logger.info("👮‍♀️ The safeguard status was: %s", "blocked" if blocked else "not blocked")
+        logger.info("🧮 The Complexity: %s", complexity)
+        logger.info("🧠 The Reasoning: %s", reasoning)
+        logger.info("👟 The total_steps: %s", total_steps)
