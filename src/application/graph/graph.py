@@ -31,7 +31,7 @@ def iteration_condition(state: dict):
     current_step = state["current_step"] if "current_step" in state else None
     total_steps = state["total_steps"] if "total_steps" in state else None
 
-    if error or not current_step or not total_steps:
+    if error or current_step is None or total_steps is None:
         return "done"
 
     # current step is an index whereas total_steps is a count. If they are equal, it means it reached the last index
