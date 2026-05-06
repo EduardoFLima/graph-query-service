@@ -48,7 +48,7 @@ class OpenAPIClient(ModelClientPort):
             model=self._client, tools=[], response_format=response_format
         )
 
-        logger.info("\n⌛...calling the agent...")
+        logger.info("⌛...calling the agent...")
 
         try:
             data = agent.invoke(
@@ -59,7 +59,7 @@ class OpenAPIClient(ModelClientPort):
 
             if last_ai_message is not None and isinstance(last_ai_message, AIMessage):
                 logger.info(
-                    "\nℹ️ Got a response. The model used was %s",
+                    "ℹ️ Got a response. The model used was %s",
                     last_ai_message.response_metadata["model_name"],
                 )
 
