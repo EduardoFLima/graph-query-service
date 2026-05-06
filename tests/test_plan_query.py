@@ -11,7 +11,7 @@ class TestSimpleQuery:
         return TestClient(app)
 
     def test_should_make_simple_query(self, client):
-        response = client.post(f"/chat", json={"prompt": "Show me how many people bough Apple last year"})
+        response = client.post(f"/chat", json={"prompt": "Show me how many people bough Meat last year"})
 
         assert response.status_code == 200
         assert response.json() is not None
@@ -27,7 +27,7 @@ class TestSimpleQuery:
         assert len(cyphers_results) == 1
 
     def test_should_make_a_complex_query(self, client):
-        response = client.post(f"/chat", json={"prompt": "Find purchases that customers typically purchase after buying milk"})
+        response = client.post(f"/chat", json={"prompt": "Find purchases that customers typically purchase after buying Meat"})
 
         assert response.status_code == 200
         assert response.json() is not None
