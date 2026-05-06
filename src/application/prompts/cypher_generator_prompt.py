@@ -1,6 +1,6 @@
-from datetime import datetime
 import json
 import types
+from datetime import datetime
 from functools import lru_cache
 from typing import Any
 
@@ -49,6 +49,7 @@ def get_system_prompt() -> str:
             "Return flat values (no nested objects), use NULLS LAST when sorting",
             "Filter early in patterns, keep max 3 relationship hops",
             "Return ONLY plain text query (no markdown, no 'cypher' wrapper)",
+            "do not use 'NULLS LAST'",
             "Avoid use year functions and prefer plain numbers",
             "Use datetime, not date"
         ],
