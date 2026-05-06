@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 def cypher_generator(model_client: ModelClientPort):
     def cypher_generator_node(state: dict):
         try:
-            if "error" in state or "plan_query" not in state:
+            logger.info("\n === starting a new step === \n")
+
+            if ("error" in state and state["error"] is not None) or "plan_query" not in state:
                 return state
 
             current_step = state["current_step"] if "current_step" in state else None

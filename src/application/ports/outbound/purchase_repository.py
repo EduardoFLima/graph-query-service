@@ -10,5 +10,5 @@ class PurchaseRepository(ABC):
         raise NotImplementedError("execute_cypher not implemented!")
 
     @abstractmethod
-    def validate_cypher(self, cypher: str) -> bool:
+    def validate_cypher(self, cypher: str) -> dict:
         raise NotImplementedError("validate_cypher not implemented!")

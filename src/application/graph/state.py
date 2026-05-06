@@ -23,5 +23,8 @@ class State(MessagesState):
     cyphers: list[str] | None = None
     results: list[Any] | None = None
 
+    needs_correction: bool = False
+    correction_attempts: int = 0
+
     current_step: int = 0
     total_steps: int = 1

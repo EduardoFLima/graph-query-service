@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def cypher_executor(purchase_repository: PurchaseRepository):
     def cypher_executor_node(state: dict):
         try:
-            if "error" in state or "plan_query" not in state:
+            if ("error" in state and state["error"] is not None) or "plan_query" not in state:
                 return state
 
             current_step = state["current_step"] if "current_step" in state else None
@@ -18,9 +18,16 @@ def cypher_executor(purchase_repository: PurchaseRepository):
 
             logger.info("🧪 ...validating cypher: %s", target_cypher.replace("\n", " "))
 
-            if not purchase_repository.validate_cypher(target_cypher):
+            validation_result = purchase_repository.validate_cypher(target_cypher)
+            valid = validation_result["valid"] if "valid" in validation_result else False
+
+            if not valid:
+                error_details = validation_result["error_details"] if "error_details" in validation_result else None
+                error_message = f"❌ The cypher is not valid. Details: {error_details.replace("\n", " ")}"
+                logger.error(error_message)
                 return {
-                    "error": "The generated cypher is not valid"
+                    "error": error_message,
+                    "needs_correction": True,
                 }
 
             logger.info("📥 Cypher valid! Fetching results...")
@@ -52,6 +59,7 @@ def cypher_executor(purchase_repository: PurchaseRepository):
 
         return {
             "error": error,
+            "needs_correction": True,
         }
 
     return cypher_executor_node

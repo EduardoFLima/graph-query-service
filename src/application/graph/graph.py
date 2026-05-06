@@ -1,6 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
+from src.application.graph.nodes.cypher_corrector_node import cypher_corrector
 from src.application.graph.nodes.cypher_executor_node import cypher_executor
 from src.application.graph.nodes.cypher_generator_node import cypher_generator
 from src.application.graph.nodes.init_state_node import init_state
@@ -11,6 +12,8 @@ from src.application.graph.state import State
 from src.application.ports.outbound.memory_port import MemoryPort
 from src.application.ports.outbound.model_client_port import ModelClientPort
 from src.application.ports.outbound.purchase_repository import PurchaseRepository
+
+MAX_CORRECTION_ATTEMPTS = 3
 
 
 def blocked(_):
@@ -27,6 +30,12 @@ def initial_checks_condition(state: dict):
 
 
 def iteration_condition(state: dict):
+    needs_correction = state["needs_correction"] if "needs_correction" in state else None
+    correction_attempts = state["correction_attempts"] if "correction_attempts" in state else 0
+
+    if needs_correction and correction_attempts < MAX_CORRECTION_ATTEMPTS:
+        return "correct"
+
     error = state["error"] if "error" in state else None
     current_step = state["current_step"] if "current_step" in state else None
     total_steps = state["total_steps"] if "total_steps" in state else None
@@ -51,6 +60,7 @@ def get_graph_definition(model_client: ModelClientPort,
     agent_builder.add_node("plan_query", plan_query(model_client))
     agent_builder.add_node("cypher_generator", cypher_generator(model_client))
     agent_builder.add_node("cypher_executor", cypher_executor(purchase_repository))
+    agent_builder.add_node("cypher_corrector", cypher_corrector(model_client))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
@@ -71,10 +81,12 @@ def get_graph_definition(model_client: ModelClientPort,
         "cypher_executor",
         iteration_condition,
         {
+            "correct": "cypher_corrector",
             "iterate": "cypher_generator",
             "done": "summarize"
         },
     )
+    agent_builder.add_edge("cypher_corrector", "cypher_executor")
 
     agent_builder.add_edge("blocked", "summarize")
     agent_builder.add_edge("summarize", END)
