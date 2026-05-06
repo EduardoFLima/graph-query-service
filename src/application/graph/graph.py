@@ -1,7 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
-from src.application.graph.nodes.cypher_executer_node import cypher_executor
+from src.application.graph.nodes.cypher_executor_node import cypher_executor
 from src.application.graph.nodes.cypher_generator_node import cypher_generator
 from src.application.graph.nodes.init_state_node import init_state
 from src.application.graph.nodes.plan_query_node import plan_query
