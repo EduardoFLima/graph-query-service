@@ -37,7 +37,7 @@ def plan_query(model_client: ModelClientPort):
 
     def handle_error(e: Exception) -> dict[str, str]:
         error = f"❌ Error while planning the query: {e}"
-        logging.error(error)
+        logger.error(error)
 
         return {
             "error": error,

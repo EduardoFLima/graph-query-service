@@ -44,7 +44,7 @@ def cypher_executor(purchase_repository: PurchaseRepository):
 
     def handle_error(e: Exception) -> dict[str, str]:
         error = f"❌ Error while executing a cypher: {e}"
-        logging.error(error)
+        logger.error(error)
 
         return {
             "error": error,
