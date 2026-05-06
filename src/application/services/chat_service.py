@@ -51,6 +51,7 @@ class ChatService(ChatUseCase):
         complexity = plan_query.complexity if plan_query else None
         reasoning = plan_query.reasoning if plan_query else None
         total_steps = result["total_steps"] if "total_steps" in result else None
+        cyphers_results = result["cyphers_results"] if "cyphers_results" in result else None
 
         self.log_details(blocked, complexity, error, reasoning, total_steps)
 
@@ -62,6 +63,7 @@ class ChatService(ChatUseCase):
             "complexity": complexity,
             "reasoning": reasoning,
             "total_steps": total_steps,
+            "cyphers_results": cyphers_results,
             "error": error
         }
 

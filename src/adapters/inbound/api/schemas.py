@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -11,5 +13,6 @@ class ChatResponse(BaseModel):
     complexity: str | None = None
     reasoning: str | None = None
     total_steps: int | None = None
+    cyphers_results: list[Any] | None = None
     error: str | None = None
 

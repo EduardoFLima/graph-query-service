@@ -21,7 +21,7 @@ class State(MessagesState):
 
     plan_query: PlanQuerySchema | None = None
     cyphers: list[str] | None = None
-    results: list[Any] | None = None
+    cyphers_results: list[Any] | None = None
 
     needs_correction: bool = False
     correction_attempts: int = 0

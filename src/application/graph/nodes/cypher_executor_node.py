@@ -12,7 +12,7 @@ def cypher_executor(purchase_repository: PurchaseRepository):
                 return state
 
             current_step = state["current_step"] if "current_step" in state else None
-            results = state["results"] if "results" in state else []
+            cyphers_results = state["cyphers_results"] if "cyphers_results" in state else []
 
             target_cypher = extract_target_cypher(state)
 
@@ -37,7 +37,7 @@ def cypher_executor(purchase_repository: PurchaseRepository):
             if target_cypher_result is not None:
                 return {
                     "current_step": current_step + 1 if current_step is not None else None,
-                    "results": results + [target_cypher_result]
+                    "cyphers_results": cyphers_results + [target_cypher_result]
                 }
 
             return {
