@@ -28,3 +28,6 @@ class State(MessagesState):
 
     current_step: int = 0
     total_steps: int = 1
+
+    analysis: str | None = None
+    follow_up_questions: list[str] | None = None

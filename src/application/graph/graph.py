@@ -1,6 +1,7 @@
 from langchain.messages import AIMessage
 from langgraph.graph import END, START, StateGraph
 
+from src.application.graph.nodes.analytical_response_node import analytical_response
 from src.application.graph.nodes.cypher_corrector_node import cypher_corrector
 from src.application.graph.nodes.cypher_executor_node import cypher_executor
 from src.application.graph.nodes.cypher_generator_node import cypher_generator
@@ -61,6 +62,7 @@ def get_graph_definition(model_client: ModelClientPort,
     agent_builder.add_node("cypher_generator", cypher_generator(model_client))
     agent_builder.add_node("cypher_executor", cypher_executor(purchase_repository))
     agent_builder.add_node("cypher_corrector", cypher_corrector(model_client))
+    agent_builder.add_node("analytical_response", analytical_response(model_client))
     agent_builder.add_node("blocked", blocked)
     agent_builder.add_node("summarize", summarize)
 
@@ -83,10 +85,11 @@ def get_graph_definition(model_client: ModelClientPort,
         {
             "correct": "cypher_corrector",
             "iterate": "cypher_generator",
-            "done": "summarize"
+            "done": "analytical_response"
         },
     )
     agent_builder.add_edge("cypher_corrector", "cypher_executor")
+    agent_builder.add_edge("analytical_response", "summarize")
 
     agent_builder.add_edge("blocked", "summarize")
     agent_builder.add_edge("summarize", END)
