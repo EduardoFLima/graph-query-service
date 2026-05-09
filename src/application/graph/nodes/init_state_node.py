@@ -16,7 +16,7 @@ def init_state(state):
         "conversation_history": conversation_history,
         "current_step": 0,
         "total_steps": 1,
-        }
+    }
 
 
 def extract_conversation_history(messages) -> str:
@@ -24,7 +24,7 @@ def extract_conversation_history(messages) -> str:
         return ""
 
     parsed_messages: list[str] = [
-        ("User: " if isinstance(message, HumanMessage) else "AI: ") + message.content
+        ("User: " if isinstance(message, HumanMessage) else "AI: ") + extract_content_from(message)
         for message in messages[:-1]
     ]
 
@@ -32,17 +32,25 @@ def extract_conversation_history(messages) -> str:
 
 
 def extract_prompt_from(state):
-    message = state["messages"][-1]
+    last_message = state["messages"][-1]
 
-    # Handle messages coming from the inbound adapter (chat service)
-    if isinstance(message, HumanMessage):
-        prompt = message.content
+    return extract_content_from(last_message)
+
+
+def extract_content_from(message) -> str:
+    if getattr(message, "content"):
+        content = message.content
     else:
         content = message.get("content")
-        # Handle messages coming from langsmith studio's chat
-        if isinstance(content, list):
-            prompt = message["content"][0]["text"]
-        else:
-            # Handle messages coming from langsmith studio's graph
-            prompt = message["content"]
-    return prompt
+
+    # Handle messages coming from the inbound adapter (chat service)
+    if (isinstance(content, str)):
+        return content
+    # Handle messages coming from langsmith studio's chat
+    if isinstance(content, list):
+        content = content[0]["text"]
+    else:
+        # Handle messages coming from langsmith studio's graph
+        content = message["content"]
+
+    return content
