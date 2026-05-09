@@ -31,7 +31,10 @@ class ChatService(ChatUseCase):
         thread_id = resolve_thread_id(thread_id)
 
         result = self._graph.invoke(
-            {"messages": messages},
+            {
+                "messages": messages,
+                "error": None
+            },
             config={
                 "configurable": {
                     "thread_id": thread_id
