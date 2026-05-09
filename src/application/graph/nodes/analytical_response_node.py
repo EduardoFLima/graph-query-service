@@ -23,11 +23,14 @@ def analytical_response(model_client: ModelClientPort):
 
                 structured_response = model_client.send_prompt(system_prompt, user_prompt, AnalyticalResponseSchema)
 
-                return {
-                    "messages": [AIMessage(content=structured_response.analysis)],
-                    "analysis": structured_response.analysis,
-                    "follow_up_questions": structured_response.follow_up_questions
-                }
+                if structured_response and structured_response.analysis:
+                    return {
+                        "messages": [AIMessage(content=structured_response.analysis)],
+                        "analysis": structured_response.analysis,
+                        "follow_up_questions": structured_response.follow_up_questions
+                    }
+
+                raise RuntimeError("Model didnt return analysis under structured_response.")
 
             questions = state["plan_query"].sub_questions
             cyphers_results = state["cyphers_results"] if "cyphers_results" in state else []
