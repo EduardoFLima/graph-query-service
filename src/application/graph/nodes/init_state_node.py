@@ -44,13 +44,11 @@ def extract_content_from(message) -> str:
         content = message.get("content")
 
     # Handle messages coming from the inbound adapter (chat service)
+    # Handle messages coming from langsmith studio's graph
     if (isinstance(content, str)):
         return content
     # Handle messages coming from langsmith studio's chat
     if isinstance(content, list):
         content = content[0]["text"]
-    else:
-        # Handle messages coming from langsmith studio's graph
-        content = message["content"]
 
     return content
