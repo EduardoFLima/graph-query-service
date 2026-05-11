@@ -1,43 +1,54 @@
-# LangGraph API
-
-LangGraph API is a **template project** for building LangGraph-based applications with FastAPI.
-Use it as a reference implementation to bootstrap new projects with graph orchestration, clean architecture boundaries, and persistent memory out of the box.
-
-**What you get:**
-
-- A reusable baseline for production-ready LangGraph services.
-- Deterministic graph orchestration with intent-based routing.
-- Persistent memory across interactions via database-backed state.
-
-This repository is designed to be copied and adapted as a starting point for other LangGraph applications.
+# Graph Query Service
 
 ## Table of contents
 
-- [What this project does](#what-this-project-does)
+- [About the project](#about-the-project)
+- [Architecture overview](#architecture-overview)
 - [Prerequisites](#prerequisites)
 - [Run the project (Uvicorn)](#run-the-project-uvicorn)
 - [Run tests (Pytest)](#run-tests-pytest)
-- [Seed Neo4j with mock data](#seed-neo4j-with-mock-data)
-- [Hexagonal architecture (rough overview)](#hexagonal-architecture-rough-overview)
-  - [Benefits](#benefits)
-- [Graph structure (`src/application/graph/graph.py`)](#graph-structure-srcapplicationgraphgraphpy)
+- [LangGraph structure (`src/application/graph/graph.py`)](#langgraph-structure-srcapplicationgraphgraphpy)
 
-## What this project does
+## About the project
 
-- Exposes HTTP endpoints with FastAPI (for example, `/chat` and `/health`).
-- Routes each chat request through a graph-based flow (intent detection -> branch -> summarization).
-- Persists conversation memory using PostgreSQL.
+Graph Query Service is a chat API that receives natural-language business questions and returns a consolidated analytical response.
+Built with FastAPI and LangGraph, turns natural-language business questions into structured graph analysis. The flow detects user intent, decomposes complex requests into smaller steps when needed, generates and executes Cypher queries, consolidate the response. It also preserves conversation context so interactions remain stateful across requests.
 
-This project uses **LangGraph** to orchestrate stateful agent-like flows. Learn more at:
-https://www.langchain.com/langgraph
+At a high level, it:
+
+- Understands user intent from each prompt.
+- Breaks complex requests into smaller sub-questions.
+- Translates each step into Cypher queries.
+- Executes queries against the graph database.
+- Aggregates results and returns an analytical response.
+- Persists chat memory across interactions.
+
+## Architecture overview
+
+The project follows a hexagonal architecture (ports and adapters):
+
+- `src/domain`: core business models and value objects.
+- `src/application`: use cases, orchestration, graph state, and ports.
+- `src/adapters`: concrete inbound/outbound implementations (API, model client, persistence).
+
+```mermaid
+flowchart LR
+    Client[Client / HTTP] --> Inbound[Inbound Adapter\nFastAPI Router]
+    Inbound --> App[Application Layer\nLangGraph Orchestration]
+    App --> Domain[Domain Layer\nBusiness Models]
+
+    App --> OutModel[Outbound Adapter\nModel Client]
+    App --> OutGraph[Outbound Adapter\nNeo4j Repository]
+    App --> OutMemory[Outbound Adapter\nPostgreSQL Memory]
+
+    Domain -.ports.-> App
+```
 
 ## Prerequisites
 
 - Python 3.12+
 - Docker and Docker Compose
-- A `.env` file (you can copy from `.env.example`)
-
-Example:
+- `.env` file (copy from `.env.example`)
 
 ```bash
 cp .env.example .env
@@ -45,25 +56,25 @@ cp .env.example .env
 
 ## Run the project (Uvicorn)
 
-1. Start infrastructure first (PostgreSQL via Docker Compose):
+Start infrastructure first (Docker Compose includes PostgreSQL and Neo4j):
 
 ```bash
 docker compose up -d
 ```
 
-2. Install dependencies (if you have not installed them yet):
+Install dependencies:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-3. Start the API with Uvicorn:
+Run the API:
 
 ```bash
 uvicorn src.main:app --reload
 ```
 
-4. Optional quick check:
+Optional health check:
 
 ```bash
 curl http://127.0.0.1:8000/health
@@ -71,59 +82,63 @@ curl http://127.0.0.1:8000/health
 
 ## Run tests (Pytest)
 
-Even for tests, start Docker Compose first so PostgreSQL is available for integration-like flows:
+Tests rely on the configured infrastructure, so keep Docker Compose running:
 
 ```bash
 docker compose up -d
-```
-
-Then run tests:
-```bash
-# quietly
 pytest -q
 ```
-or
+
+Verbose mode:
 
 ```bash
-# verbosely
 pytest -vs
 ```
 
-## Seed Neo4j with mock data
+## LangGraph structure (`src/application/graph/graph.py`)
 
-This project includes a script to populate local Neo4j with mock graph data:
+Graph flow:
 
-- 15 `Product` nodes
-- 1000 `Purchase` nodes
-- `(:Purchase)-[:CONTAINS {quantity, unit_price, line_total}]->(:Product)` relationships
+```mermaid
+flowchart TD
+    START([START]) --> init_state[init_state]
+    init_state --> safeguard_check[safeguard_check]
 
-Run it after starting Docker Compose (Neo4j is exposed at `bolt://localhost:7687`):
+    safeguard_check -->|safe| plan_query[plan_query]
+    safeguard_check -->|unsafe| blocked[blocked]
 
-```bash
-python -m data.neo4j_seed
+    plan_query --> cypher_generator[cypher_generator]
+    cypher_generator --> cypher_executor[cypher_executor]
+
+    cypher_executor -->|correct| cypher_corrector[cypher_corrector]
+    cypher_corrector --> cypher_executor
+
+    cypher_executor -->|iterate| cypher_generator
+    cypher_executor -->|done| analytical_response[analytical_response]
+
+    analytical_response --> summarize[summarize]
+    blocked --> summarize
+    summarize --> END([END])
 ```
 
-Optional flags:
+Rough node responsibilities:
 
-```bash
-python -m data.neo4j_seed --products 15 --purchases 1000 --seed 42
-python -m data.neo4j_seed --no-clear
-```
+- `init_state`: extracts the latest user prompt, builds conversation history, and initializes step counters.
+- `safeguard_check`: runs a safety/prompt-injection check with the model client.
+- `blocked`: returns a safety-blocked response when the prompt is unsafe.
+- `plan_query`: decides if the question should be decomposed and produces sub-questions.
+- `cypher_generator`: generates one Cypher query for the current sub-question.
+- `cypher_executor`: validates and executes Cypher, stores results, and advances step progress.
+- `cypher_corrector`: attempts to repair invalid Cypher and retries execution (up to configured limits).
+- `analytical_response`: synthesizes query results (or error context) into the final analysis.
+- `summarize`: trims stored message history before ending the graph.
 
-## Hexagonal architecture (rough overview)
+Conditional logic in the graph:
 
-This repository follows a **hexagonal architecture** (also known as ports-and-adapters):
+- `initial_checks_condition`: routes `safe -> plan_query` or `unsafe -> blocked`.
+- `iteration_condition`: routes executor output to:
+  - `correct` when correction is needed and attempts remain.
+  - `iterate` when more planned steps remain.
+  - `done` when processing should finish and produce analysis.
 
-- `src/domain`: core business concepts (the most stable center).
-- `src/application`: use cases, orchestration, graph flow, and interfaces (ports).
-- `src/adapters`: concrete implementations for external systems (HTTP API, model clients, persistence).
-
-### Benefits
-
-- Business rules stay isolated from framework/database/provider details.
-- Swapping integrations is easier (for example, another model provider or storage backend).
-- Code is easier to test because core logic depends on abstractions, not concrete tools.
-
-## Graph structure (`src/application/graph/graph.py`)
-
-TODO: re-generate documentation.
+The graph is compiled with a memory checkpointer from the configured memory adapter, enabling stateful interactions.
