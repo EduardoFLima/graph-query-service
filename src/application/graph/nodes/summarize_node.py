@@ -11,10 +11,4 @@ def summarize(state: dict):
         *shrunk_messages,
     ]
 
-    blocked = state["safeguard"].blocked if state.get("safeguard") else False
-    if blocked:
-        return {
-            "messages": new_conversation_history,
-        }
-
     return {"messages": new_conversation_history}
