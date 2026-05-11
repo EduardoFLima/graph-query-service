@@ -12,11 +12,19 @@ def init_state(state):
     logger.info("🔍 Initializing state...  Prompt extracted... setting steps info...")
 
     return {
-        "error": None,
         "user_prompt": user_prompt,
         "conversation_history": conversation_history,
+        "error": None,
+        "safeguard": None,
+        "plan_query": None,
+        "cyphers": [],
+        "cyphers_results": [],
+        "needs_correction": False,
+        "correction_attempts": 0,
         "current_step": 0,
         "total_steps": 1,
+        "analysis": None,
+        "follow_up_questions": None
     }
 
 
