@@ -18,7 +18,7 @@ class PlanQuerySchema(BaseModel):
 
 
 @lru_cache
-def get_system_prompt() -> str:
+def get_system_prompt(conversation_history: list[str]) -> str:
     system_prompt = {
         "role": "Query Complexity Analyzer - Determine if questions need multi-step decomposition",
         "rules": [
@@ -29,6 +29,7 @@ def get_system_prompt() -> str:
             "if there are subquestions, requires_decomposition must be true",
             "if there are no subquestions and the question can be solved directly, requires_decomposition must be false",
         ],
+        "conversation_history": conversation_history,
         "examples": [
             {
                 "question": "List all available products",

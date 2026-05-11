@@ -11,8 +11,9 @@ def plan_query(model_client: ModelClientPort):
         try:
             total_steps = state["total_steps"]
             user_prompt = state["user_prompt"]
+            conversation_history = state["conversation_history"]
 
-            system_prompt = get_system_prompt()
+            system_prompt = get_system_prompt(conversation_history)
             user_prompt = wrap_user_prompt(user_prompt)
 
             structured_response = model_client.send_prompt(system_prompt, user_prompt, PlanQuerySchema)
