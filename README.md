@@ -33,18 +33,20 @@ The project follows a hexagonal architecture (ports and adapters):
 
 ```mermaid
 flowchart LR
-    Client[Client / HTTP] --> Inbound[Inbound Adapter\nFastAPI Router]
+    Client[Client / HTTP]
 
-    subgraph AppHex[Application Layer (Hexagonal Boundary)]
-        App[Application Services\nLangGraph Orchestration]
-        Domain[Domain Core\nBusiness Models]
-        App --> Domain
-    end
+    Inbound[Inbound Adapter\nFastAPI Router]
+    OutModel[Outbound Adapter\nModel Client]
+    OutGraph[Outbound Adapter\nNeo4j Repository]
+    OutMemory[Outbound Adapter\nPostgreSQL Memory]
 
-    Inbound --> App
-    App --> OutModel[Outbound Adapter\nModel Client]
-    App --> OutGraph[Outbound Adapter\nNeo4j Repository]
-    App --> OutMemory[Outbound Adapter\nPostgreSQL Memory]
+    CoreHex{{Application Layer\n&\nDomain Core}}
+
+    Client --> Inbound
+    Inbound --> CoreHex
+    CoreHex --> OutModel
+    CoreHex --> OutGraph
+    CoreHex --> OutMemory
 ```
 
 ## Prerequisites
